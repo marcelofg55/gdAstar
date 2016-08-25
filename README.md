@@ -5,6 +5,7 @@ A* implementation for godot, based off Justin Heyes-Jones A* C++ implementation 
 
 ## Example usage in gdscript
 
+```python
 var astar = gdAstar.new()
 
 # Add all your walkable map points
@@ -16,3 +17,4 @@ astar.AddPoint(x, y)
 var src = Vector2(0, 0)
 var dst = Vector2(0, 0)
 astar.FindPath(src.x, src.y, dst.x, dst.y)
+```
