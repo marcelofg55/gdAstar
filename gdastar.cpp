@@ -6,37 +6,26 @@
 #include "stlastar.h"
 
 
-using namespace std;
+MapSearchNode::MapSearchNode() {
+	x = y = 0;
+	_map = NULL;
+}
 
-class MapSearchNode {
-public:
-	int x; // the (x,y) positions of the node
-	int y;
+MapSearchNode::MapSearchNode(int px, int py, std::vector< std::pair<int, int> > *pmap) {
+	x=px;
+	y=py;
+	_map = pmap;
+}
 
-	MapSearchNode() { x = y = 0; }
-	MapSearchNode( int px, int py ) { x=px; y=py; }
-
-	float GoalDistanceEstimate( MapSearchNode &nodeGoal );
-	bool IsGoal( MapSearchNode &nodeGoal );
-	bool GetSuccessors( AStarSearch<MapSearchNode> *astarsearch, MapSearchNode *parent_node );
-	float GetCost( MapSearchNode &successor );
-	bool IsSameState( MapSearchNode &rhs );
-
-	void PrintNodeInfo(); 
-};
-
-static AStarSearch<MapSearchNode> astarsearch;
-static std::vector< std::pair<int, int> > _map;
-
-static int GetMap(int x, int y) {
-	if (std::find(_map.begin(), _map.end(), std::make_pair(x, y)) != _map.end()) {
+int MapSearchNode::GetMap(int x, int y) {
+	if (_map != NULL && std::find(_map->begin(), _map->end(), std::make_pair(x, y)) != _map->end()) {
 		return 1;
 	}
 
 	return 9;
 }
 
-bool MapSearchNode::IsSameState( MapSearchNode &rhs ) {
+bool MapSearchNode::IsSameState(MapSearchNode &rhs) {
 	// same state in a maze search is simply when (x,y) are the same
 	if( (x == rhs.x) && (y == rhs.y) ) {
 		return true;
@@ -68,35 +57,34 @@ bool MapSearchNode::IsGoal(MapSearchNode &nodeGoal) {
 // is done for each node internally, so here you just set the state information that
 // is specific to the application
 bool MapSearchNode::GetSuccessors(AStarSearch<MapSearchNode> *astarsearch, MapSearchNode *parent_node) {
-	int parent_x = -1; 
-	int parent_y = -1; 
+	int parent_x = -1;
+	int parent_y = -1;
 
 	if (parent_node) {
 		parent_x = parent_node->x;
 		parent_y = parent_node->y;
+		_map = parent_node->_map;
 	}
-
-	MapSearchNode NewNode;
 
 	// push each possible move except allowing the search to go backwards
 
-	if ((GetMap( x-1, y ) < 9) && !((parent_x == x-1) && (parent_y == y))) {
-		NewNode = MapSearchNode(x-1, y);
+	if ((GetMap(x-1, y) < 9) && !((parent_x == x-1) && (parent_y == y))) {
+		MapSearchNode NewNode = MapSearchNode(x-1, y, _map);
 		astarsearch->AddSuccessor(NewNode);
 	}
 
-	if( (GetMap( x, y-1 ) < 9) && !((parent_x == x) && (parent_y == y-1))) {
-		NewNode = MapSearchNode(x, y-1);
+	if( (GetMap(x, y-1) < 9) && !((parent_x == x) && (parent_y == y-1))) {
+		MapSearchNode NewNode = MapSearchNode(x, y-1, _map);
 		astarsearch->AddSuccessor(NewNode);
 	}
 
-	if( (GetMap( x+1, y ) < 9) && !((parent_x == x+1) && (parent_y == y))) {
-		NewNode = MapSearchNode(x+1, y);
+	if( (GetMap(x+1, y) < 9) && !((parent_x == x+1) && (parent_y == y))) {
+		MapSearchNode NewNode = MapSearchNode(x+1, y, _map);
 		astarsearch->AddSuccessor(NewNode);
 	}
 
-	if( (GetMap( x, y+1 ) < 9) && !((parent_x == x) && (parent_y == y+1))) {
-		NewNode = MapSearchNode(x, y+1);
+	if( (GetMap(x, y+1) < 9) && !((parent_x == x) && (parent_y == y+1))) {
+		MapSearchNode NewNode = MapSearchNode(x, y+1, _map);
 		astarsearch->AddSuccessor(NewNode);
 	}
 
@@ -112,11 +100,11 @@ float MapSearchNode::GetCost(MapSearchNode &successor) {
 }
 
 void gdAstar::AddPoint(int x, int y) {
-	_map.push_back(std::make_pair(x, y));
+	astarMap.push_back(std::make_pair(x, y));
 }
 
 void gdAstar::ClearPoints() {
-	_map.clear();
+	astarMap.clear();
 }
 
 Vector2Array gdAstar::FindPath(int x0, int y0, int x1, int y1) {
@@ -125,14 +113,10 @@ Vector2Array gdAstar::FindPath(int x0, int y0, int x1, int y1) {
 	AStarSearch<MapSearchNode> astarsearch;
 
 	// Create a start state
-	MapSearchNode nodeStart;
-	nodeStart.x = x0;
-	nodeStart.y = y0;
+	MapSearchNode nodeStart = MapSearchNode(x0, y0, &astarMap);
 
 	// Define the goal state
-	MapSearchNode nodeEnd;
-	nodeEnd.x = x1;
-	nodeEnd.y = y1;
+	MapSearchNode nodeEnd = MapSearchNode(x1, y1, &astarMap);
 
 	// Set Start and goal states
 	astarsearch.SetStartAndGoalStates(nodeStart, nodeEnd);
@@ -175,5 +159,3 @@ gdAstar::gdAstar() {
 
 gdAstar::~gdAstar() {
 }
-
-
