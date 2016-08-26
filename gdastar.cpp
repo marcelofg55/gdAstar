@@ -115,6 +115,10 @@ void gdAstar::AddPoint(int x, int y) {
 	_map.push_back(std::make_pair(x, y));
 }
 
+void gdAstar::ClearPoints() {
+	_map.clear();
+}
+
 Vector2Array gdAstar::FindPath(int x0, int y0, int x1, int y1) {
 	Vector2Array path;
 
@@ -162,6 +166,7 @@ Vector2Array gdAstar::FindPath(int x0, int y0, int x1, int y1) {
 
 void gdAstar::_bind_methods() {
 	ObjectTypeDB::bind_method("AddPoint", &gdAstar::AddPoint);
+	ObjectTypeDB::bind_method("ClearPoints", &gdAstar::ClearPoints);
 	ObjectTypeDB::bind_method("FindPath", &gdAstar::FindPath);
 }
 
