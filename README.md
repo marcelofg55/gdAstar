@@ -15,6 +15,13 @@ astar.AddPoint(x, y)
 
 # Find a path
 var src = Vector2(0, 0)
-var dst = Vector2(0, 0)
+var dst = Vector2(1, 1)
 astar.FindPath(src.x, src.y, dst.x, dst.y)
+
+# You may clear the current points with ClearPoints
+astar.ClearPoints()
+
+# And you can instance multiple gdAstar in case you need to
+var astarFlying = gdAstar.new()
+
 ```
